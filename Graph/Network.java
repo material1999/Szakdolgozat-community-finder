@@ -9,14 +9,14 @@ public class Network {
 	private ArrayList<Edge> edges;
 	
 	public Network() {
-		this.nodemap=new HashMap<String,Node>();
-		this.nodes=new LinkedHashSet<Node>();
-		this.edges=new ArrayList<Edge>();
+		this.nodemap = new HashMap<String,Node>();
+		this.nodes = new LinkedHashSet<Node>();
+		this.edges = new ArrayList<Edge>();
 	}
 	
 	public void addEdge(Edge a) {
-		Node in=null;
-		Node out=null;
+		Node in = null;
+		Node out = null;
 
 		if(nodes.contains(a.getOut())) {	
 			out = nodemap.get(a.getOut().getId());
@@ -33,6 +33,7 @@ public class Network {
 		}
 		a.setIn(in);
 		a.setOut(out);
+
 		//UNDIRECTED
 		out.addNeighbour(in);
 		in.addNeighbour(out);
@@ -82,15 +83,6 @@ public class Network {
 			n.setFv(0);
 		}
 	}
-	
-	public double getFvSum() {
-		double sum=0.0;
-		for(Node n: nodes) {
-			sum+=n.getFv();
-		}
-		return sum;
-	}
-
 
 	public Node getNode(String n) {
 		nodemap = this.getNodemap();

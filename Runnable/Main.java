@@ -24,8 +24,8 @@ public class Main {
     static double rand, mean;
     static int nodeNumber, s, edges, lastIteration;
     static long startTime, elapsedTime, elapsedSeconds, seconds, minutes;
-    static TreeSet<Integer> L, deleteTemp;
-    static HashSet<TreeSet<Integer>> K = new HashSet() {
+    static TreeSet<Integer> B, deleteTemp;
+    static HashSet<TreeSet<Integer>> foundCommunities = new HashSet() {
         @Override
         public String toString() {
             String ret = "";
@@ -36,7 +36,7 @@ public class Main {
             return ret;
         }
     };
-    static HashSet<TreeSet<Integer>> J = new HashSet() {
+    static HashSet<TreeSet<Integer>> newCommunities = new HashSet() {
         @Override
         public String toString() {
             String ret = "";
@@ -47,7 +47,7 @@ public class Main {
             return ret;
         }
     };
-    static HashSet<TreeSet<Integer>> helper = new HashSet() {
+    static HashSet<TreeSet<Integer>> toDelete = new HashSet() {
         @Override
         public String toString() {
             String ret = "";
@@ -60,10 +60,10 @@ public class Main {
     };
 
     public static void addVertexIteration() {
-        helper.clear();
+        toDelete.clear();
         int counter = 0;
         Set<Node> neighbourSet = new HashSet<>();
-        for (TreeSet<Integer> A : K) {
+        for (TreeSet<Integer> A : foundCommunities) {
             counter++;
             //System.out.println("add: " + counter + "/" + K.size());
             if (A.size() != s - 1) continue;
@@ -72,12 +72,12 @@ public class Main {
                 neighbourSet.addAll(network.getNode(Integer.toString(a)).getNeighbour());
             }
             for (Node n : neighbourSet) {
-                L = new TreeSet<>();
-                L.addAll(A);
-                if (isConnected(L, Integer.parseInt(n.getId()))) {
-                    L.add(Integer.parseInt(n.getId()));
-                    if (meanEdgeWeight(L) > Parameters.timesMean * mean && !K.contains(L)) {
-                        helper.add(L);
+                B = new TreeSet<>();
+                B.addAll(A);
+                if (isConnected(B, Integer.parseInt(n.getId()))) {
+                    B.add(Integer.parseInt(n.getId()));
+                    if (meanEdgeWeight(B) > Parameters.timesMean * mean && !foundCommunities.contains(B)) {
+                        toDelete.add(B);
                         lastIteration++;
                     }
                 }
@@ -86,15 +86,15 @@ public class Main {
     }
 
     public static void deleteSubset() {
-        J.clear();
-        J.addAll(helper);
-        helper.clear();
+        newCommunities.clear();
+        newCommunities.addAll(toDelete);
+        toDelete.clear();
         int counter = 0;
-        for (TreeSet<Integer> A : J) {
+        for (TreeSet<Integer> A : newCommunities) {
             int match;
             counter++;
             //System.out.println("delete: " + counter + "/" + J.size());
-            for (TreeSet<Integer> a : K) {
+            for (TreeSet<Integer> a : foundCommunities) {
                 deleteTemp = new TreeSet<>();
                 match = 0;
                 for (Integer integer : a) {
@@ -104,7 +104,7 @@ public class Main {
                 }
                 if (match == a.size()) {
                     deleteTemp.addAll(a);
-                    helper.add(deleteTemp);
+                    toDelete.add(deleteTemp);
                 }
             }
         }
@@ -151,6 +151,8 @@ public class Main {
         if (vertices.size() == 1 && counter == 0) return false; else return counter >= threshold;
     }
 
+    // old infection simulation algorithm
+    /*
     public static void infectionSimulation(CSVWriter writer) {
         HashMap<String, Double> toWrite = new HashMap<>();
         String key;
@@ -185,7 +187,9 @@ public class Main {
         }
         Write.WriteProbabilities(writer, toWrite);
     }
+    */
 
+    // new infection simulation algorithm
     public static void newInfectionSimulation(CSVWriter writer) {
         HashMap<String, Double> toWrite = new HashMap<>();
         Network simNetwork;
@@ -231,12 +235,13 @@ public class Main {
         Write.WriteProbabilities(writer, toWrite);
     }
 
+    // community finder algorithm
     public static void communityFinder() {
-        K.clear();
+        foundCommunities.clear();
         for (Node n : network.getNodes()) {
             TreeSet<Integer> tsi = new TreeSet<>();
             tsi.add(Integer.parseInt(n.getId()));
-            K.add(tsi);
+            foundCommunities.add(tsi);
         }
         for (s = 2; s <= Parameters.maxCommunitySize; s++) {
             System.out.println("community size: " + s + " ...");
@@ -244,8 +249,8 @@ public class Main {
             lastIteration = 0;
             addVertexIteration();
             deleteSubset();
-            K.addAll(J);
-            K.removeAll(helper);
+            foundCommunities.addAll(newCommunities);
+            foundCommunities.removeAll(toDelete);
             if (lastIteration == 0) {
                 System.out.println("break at community size: " + s);
                 break;
@@ -263,7 +268,7 @@ public class Main {
         System.out.println("writing started");
         startTime = System.currentTimeMillis();
         */
-        Write.WriteCommunities(writer, K);
+        Write.WriteCommunities(writer, foundCommunities);
         /*
         System.out.println("writing ended");
         elapsedTime = System.currentTimeMillis() - startTime;
@@ -280,10 +285,10 @@ public class Main {
         TreeSet<Integer> on = new TreeSet<>();
 
         //on.add(0);
-        on.add(1);
+        //on.add(1);
         //on.add(2000);
         //on.add(750);
-        //for (int i = 1; i <= Parameters.fileCount; i++) on.add(i);
+        for (int i = 1; i <= Parameters.fileCount; i++) on.add(i);
 
         for (int i : on) {
             networkFilePath = Parameters.networksFolder + i + "/edgeweighted_edit.csv";
@@ -292,7 +297,7 @@ public class Main {
             resultPath = "results/sim_inf/sim_inf_" + i + "_" + Parameters.sampleSize + ".csv";
 
             ////////// Infection Simulation //////////
-            /*
+
             System.out.println("file: " + i);
             System.out.println("siminf started");
             startTime = System.currentTimeMillis();
@@ -310,7 +315,7 @@ public class Main {
             seconds = elapsedSeconds % 60;
             minutes = elapsedSeconds / 60;
             System.out.println("elapsed time: " + minutes + " min " + seconds + " sec\n");
-            */
+
 
             ////////// Community Detection //////////
 

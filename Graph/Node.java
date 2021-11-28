@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Node {
+
 	private String id;
 	private States state;
 	private ArrayList<Edge> inlist;
@@ -12,80 +13,16 @@ public class Node {
 	private Set<Node> outneighbour;
 	private Set<Node> neighbour;
 	private double fv;
-	private double aut;
-	private int hubvalue;
-	private int Hcommvalue;
-	private int Ccommvalue;
 	
 	public Node(String id) {
 		this.id = id;
 		this.state = States.NOTVISITED;
-		this.outlist=new ArrayList<Edge>();
-		this.inlist=new ArrayList<Edge>();
-		this.outneighbour=new HashSet<Node>();
-		this.neighbour=new HashSet<Node>();
-		this.fv=0;
-		this.aut=0;
-		this.hubvalue=0;
-		this.Hcommvalue=0;
-		this.Ccommvalue=0;
+		this.outlist = new ArrayList<Edge>();
+		this.inlist = new ArrayList<Edge>();
+		this.outneighbour = new HashSet<Node>();
+		this.neighbour = new HashSet<Node>();
+		this.fv = 0;
 	}
-
-	
-	
-	public int getHcommvalue() {
-		return Hcommvalue;
-	}
-
-
-
-	public void setHcommvalue(int hcommvalue) {
-		Hcommvalue = hcommvalue;
-	}
-
-
-
-	public int getCcommvalue() {
-		return Ccommvalue;
-	}
-
-
-
-	public void setCcommvalue(int ccommvalue) {
-		Ccommvalue = ccommvalue;
-	}
-
-
-
-	public void setHubvalue(int hubvalue) {
-		this.hubvalue = hubvalue;
-	}
-
-
-
-	public int getHubvalue() {
-		return hubvalue;
-	}
-
-
-
-	public void increaseHubvalue() {
-		this.hubvalue++;
-	}
-
-
-
-	public double getAut() {
-		return aut;
-	}
-
-
-
-	public void setAut(double aut) {
-		this.aut = aut;
-	}
-
-
 
 	public ArrayList<Edge> getInlist() {
 		return inlist;
@@ -109,14 +46,6 @@ public class Node {
 	
 	public void setFv(double fv) {
 		this.fv=fv;
-	}
-	
-	public void finalizefv(int samplesize) {
-		this.fv=this.fv/(double)samplesize;
-		if(this.fv>1.0) {
-			System.out.println("fv bigger than 1: " + this.fv + ", setting it to 1...");
-			this.fv = 1;
-		}
 	}
 
 	public String getId() {
@@ -169,6 +98,14 @@ public class Node {
 	
 	public void addNeighbour(Node a) {
 		this.neighbour.add(a);
+	}
+
+	public void finalizefv(int samplesize) {
+		this.fv=this.fv/(double)samplesize;
+		if(this.fv>1.0) {
+			System.out.println("fv bigger than 1: " + this.fv + ", setting it to 1...");
+			this.fv = 1;
+		}
 	}
 
 	@Override

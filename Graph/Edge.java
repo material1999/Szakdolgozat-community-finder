@@ -11,8 +11,7 @@ public class Edge{
 		this.out = out;
 		this.in = in;
 		this.weight = weight;
-		this.alive=true;
-		
+		this.alive = true;
 	}
 	
 	public boolean isAlive() {
